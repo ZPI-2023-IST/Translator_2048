@@ -11,6 +11,7 @@ class Translator2048(AbstractTranslator):
         matching_move = next(move for move in MOVES if move.value[1] == move_vector)
         move = matching_move.value[0]
         self.game.make_move((move,))
+        return True
 
     def get_moves(self):
         all_moves = self.game.get_moves()
@@ -23,7 +24,7 @@ class Translator2048(AbstractTranslator):
         return board_one_hot_values
 
     def get_state(self):
-        self.game.get_state()
+        return self.game.get_state()
 
     def start_game(self):
         self.game.start_game()
