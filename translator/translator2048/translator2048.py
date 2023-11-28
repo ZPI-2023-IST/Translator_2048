@@ -1,6 +1,6 @@
 from ..abstract_translator.AbstractTranslator import AbstractTranslator
 from .constants import *
-
+import math
 
 class Translator2048(AbstractTranslator):
 
