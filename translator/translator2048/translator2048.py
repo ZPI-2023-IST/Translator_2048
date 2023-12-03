@@ -1,13 +1,17 @@
-from ..abstract_translator.AbstractTranslator import AbstractTranslator
-from .constants import *
 import math
+
+from .constants import *
+from ..abstract_translator.AbstractTranslator import AbstractTranslator
+
 
 class Translator2048(AbstractTranslator):
 
     def __init__(self, game=None):
         super().__init__(game)
+        self.move_indexes = list(MOVES)
 
-    def make_move(self, move_vector):
+    def make_move(self, move_index):
+        move_vector = self.move_indexes[move_index].value[1]
         matching_move = next(move for move in MOVES if move.value[1] == move_vector)
         move = matching_move.value[0]
         self.game.make_move((move,))
@@ -15,8 +19,8 @@ class Translator2048(AbstractTranslator):
 
     def get_moves(self):
         all_moves = self.game.get_moves()
-        moves_one_hot = [move.value[1] for move in MOVES if move.value[0] in all_moves]
-        return moves_one_hot
+        moves_indexes = [self.move_indexes.index(get_enum_member(move)) for move in all_moves]
+        return moves_indexes
 
     def get_board(self):
         board = self.game.get_board()
