@@ -9,6 +9,7 @@ class Translator2048(AbstractTranslator):
     def __init__(self, game=None):
         super().__init__(game)
         self.move_indexes = list(MOVES)
+        self.prev_board_empty_cells = None
 
     def make_move(self, move_index):
         move_vector = self.move_indexes[move_index].value[1]
@@ -31,6 +32,7 @@ class Translator2048(AbstractTranslator):
         return self.game.get_state()
 
     def start_game(self):
+        self.prev_board_empty_cells = None
         self.game.start_game()
 
     def get_reward(self):
@@ -40,48 +42,23 @@ class Translator2048(AbstractTranslator):
         elif state.value == State.LOST.value:
             return -10
         else:
-            # Modify merge_reward and empty_penalty to handle None values
-            merge_reward = sum([tile.value for row in self.game.get_board() for tile in row if tile.value is not None])
-            empty_penalty = -0.1 * len(
-                [tile.value for row in self.game.get_board() for tile in row if tile.value is None])
+            current_board_empty_cells = len([node.value for row in self.game.get_board() for node in row if node.value is None] )
+            if self.prev_board_empty_cells is None:
+                self.prev_board_empty_cells = current_board_empty_cells
+                return 0
 
-            monotonic_reward = self.__calculate_monotonic_reward()  # Reward for board monotonicity
-            smoothness_reward = self.__calculate_smoothness_reward()  # Reward for smoothness
+            # Calculate the change in the number of empty cells
+            empty_cells_change = current_board_empty_cells - self.prev_board_empty_cells
 
-            total_reward = merge_reward + empty_penalty + monotonic_reward + smoothness_reward
-            normalized_reward = math.log(total_reward + 1) / 2  # Logarithmic normalization
-            scaled_reward = min(10, max(0, normalized_reward))  # Scale to be between 0 and 10
+            # Update the previous empty cells count
+            self.prev_board_empty_cells = current_board_empty_cells
 
-            return scaled_reward
+            # Calculate the reward based on the change in empty cells
+            reward = empty_cells_change
+
+            return reward
 
     def get_config_model(self):
         pass
 
-    def __calculate_smoothness_reward(self):
-        smoothness_reward = 0
-        board = self.game.get_board()
-        for row in board:
-            for i in range(1, len(row)):
-                if row[i].value is not None and row[i - 1].value is not None:
-                    smoothness_reward -= abs(row[i].value - row[i - 1].value)
 
-        for col in zip(*board):
-            for i in range(1, len(col)):
-                if col[i].value is not None and col[i - 1].value is not None:
-                    smoothness_reward -= abs(col[i].value - col[i - 1].value)
-
-        return smoothness_reward
-
-    def __calculate_monotonic_reward(self):
-        monotonic_reward = 0
-        board = self.game.get_board()
-
-        for row in board:
-            monotonic_reward += sum([abs(row[i].value or 0 - row[i - 1].value) for i in range(1, len(row)) if
-                                     None not in (row[i].value, row[i - 1].value)])
-
-        for col in zip(*board):
-            monotonic_reward += sum([abs((col[i].value or 0) - (col[i - 1].value or 0)) for i in range(1, len(col)) if
-                                     None not in (col[i].value, col[i - 1].value)])
-
-        return monotonic_reward
