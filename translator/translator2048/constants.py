@@ -2,17 +2,12 @@ from enum import Enum
 
 
 class State(Enum):
-    ONGOING = 'ONGOING'
-    WON = 'WON'
-    LOST = 'LOST'
+    ONGOING = 0
+    WON = 1
+    LOST = 2
 
 
-class MOVES(Enum):
-    UP = ('w', [1, 0, 0, 0])
-    DOWN = ('s', [0, 1, 0, 0])
-    LEFT = ('a', [0, 0, 1, 0])
-    RIGHT = ('d', [0, 0, 0, 1])
-
+MOVES = ['w', 's', 'a', 'd']
 
 FIELDS_VALUES = \
     {None: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,9 +22,3 @@ FIELDS_VALUES = \
      512: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
      1024: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
      2048: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]}
-
-def get_enum_member(value):
-    for member in MOVES:
-        if member.value[0] == value:
-            return member
-    raise ValueError(f"No Enum member with value '{value}' found")
