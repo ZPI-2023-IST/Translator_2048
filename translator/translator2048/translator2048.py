@@ -36,12 +36,12 @@ class Translator2048(AbstractTranslator):
     def get_reward(self):
         state = self.game.get_state()
         if state.value == State.WON.value:
-            return 10
+            return 100
         elif state.value == State.LOST.value:
-            return -10
+            return -100
         else:
             reward = self.__count_monotonicity_reward()
-            normalized_reward = math.log(reward + 1) # Logarithmic normalization
+            normalized_reward = math.log(reward + 1)/2  # Logarithmic normalization
             scaled_reward = min(10, max(0, normalized_reward))
             return scaled_reward
 
