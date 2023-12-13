@@ -40,21 +40,43 @@ class Translator2048(AbstractTranslator):
         elif state.value == State.LOST.value:
             return -10
         else:
-            current_board_empty_cells = len([node.value for row in self.game.get_board() for node in row if node.value is None] )
-            if self.prev_board_empty_cells is None:
-                self.prev_board_empty_cells = current_board_empty_cells
-                return 0
+            reward = self.__count_monotonicity_reward()
+            normalized_reward = math.log(reward + 1) # Logarithmic normalization
+            scaled_reward = min(10, max(0, normalized_reward))
+            return scaled_reward
 
-            # Calculate the change in the number of empty cells
-            empty_cells_change = current_board_empty_cells - self.prev_board_empty_cells
+    def __count_monotonicity_reward(self):
+        best = -1
 
-            # Update the previous empty cells count
-            self.prev_board_empty_cells = current_board_empty_cells
+        board = [
+            [x.value if x.value is not None else 0 for x in row]
+            for row in self.game.get_board()
+        ]
 
-            # Calculate the reward based on the change in empty cells
-            reward = empty_cells_change
+        for i in range(4):
+            current = 0
 
-            return reward
+            for row in range(4):
+                for col in range(3):
+                    if board[row][col] >= board[row][col + 1]:
+                        current += 1
+
+            for col in range(4):
+                for row in range(3):
+                    if board[row][col] >= board[row + 1][col]:
+                        current += 1
+
+            if current > best:
+                best = current
+
+            # Rotate the board 90 degrees clockwise
+            board = self.__rotate_board_clockwise(board)
+
+        return best
+
+    def __rotate_board_clockwise(self,board):
+        return [[board[3 - row][col] for row in range(4)] for col in range(4)]
+
 
     def get_config_model(self):
         pass
