@@ -12,15 +12,13 @@ class Translator2048(AbstractTranslator):
         self.prev_board_empty_cells = None
 
     def make_move(self, move_index):
-        move_vector = self.move_indexes[move_index].value[1]
-        matching_move = next(move for move in MOVES if move.value[1] == move_vector)
-        move = matching_move.value[0]
+        move = MOVES[move_index]
         self.game.make_move((move,))
         return True
 
     def get_moves(self):
         all_moves = self.game.get_moves()
-        moves_indexes = [self.move_indexes.index(get_enum_member(move)) for move in all_moves]
+        moves_indexes = [MOVES.index(move) for move in all_moves]
         return moves_indexes
 
     def get_board(self):
