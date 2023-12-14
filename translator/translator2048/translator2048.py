@@ -10,6 +10,8 @@ class Translator2048(AbstractTranslator):
         super().__init__(game)
         self.move_indexes = list(MOVES)
         self.prev_board_empty_cells = None
+        
+        self.prev_max = 0
 
     def make_move(self, move_index):
         move = MOVES[move_index]
@@ -53,6 +55,12 @@ class Translator2048(AbstractTranslator):
 
             # Calculate the reward based on the change in empty cells
             reward = empty_cells_change
+            
+            for row in self.game.get_board():
+                for node in row:
+                    if node.value is not None and node.value > self.prev_max:
+                        self.prev_max = node.value
+                        reward += 3
 
             return reward
 
