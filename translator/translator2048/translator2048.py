@@ -34,6 +34,7 @@ class Translator2048(AbstractTranslator):
     def start_game(self):
         self.prev_board_empty_cells = None
         self.game.start_game()
+        self.prev_max = 0
 
     def get_reward(self):
         state = self.game.get_state()
